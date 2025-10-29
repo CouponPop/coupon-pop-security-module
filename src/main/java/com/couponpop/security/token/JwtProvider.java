@@ -1,6 +1,5 @@
 package com.couponpop.security.token;
 
-import com.couponpop.security.enums.MemberType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -29,13 +28,13 @@ public class JwtProvider {
         this.secretKey = Keys.hmacShaKeyFor(bytes); // 미리 암호화
     }
 
-    public String createAccessToken(Long userId, String username, MemberType memberType) {
+    public String createAccessToken(Long userId, String username, String memberType) {
 
         Date now = new Date();
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("username", username)
-                .claim("memberType", memberType.name())
+                .claim("memberType", memberType)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(secretKey)

@@ -3,7 +3,6 @@ package com.couponpop.security.token;
 
 import com.couponpop.security.blacklist.service.TokenBlacklistService;
 import com.couponpop.security.dto.AuthMember;
-import com.couponpop.security.enums.MemberType;
 import com.couponpop.utils.SecurityErrorResponseWriter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,6 +21,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -82,7 +82,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private void setAuthentication(Claims claims) {
         Long userId = Long.valueOf(claims.getSubject());
         String username = claims.get("username", String.class);
-        MemberType memberType = MemberType.valueOf(claims.get("memberType", String.class));
+        String memberType = claims.get("memberType", String.class);
 
         AuthMember authMember = AuthMember.from(userId, username, memberType);
         Authentication authenticationToken = new JwtAuthenticationToken(authMember);
