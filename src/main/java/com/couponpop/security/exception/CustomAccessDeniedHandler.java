@@ -1,6 +1,6 @@
 package com.couponpop.security.exception;
 
-import com.couponpop.utils.SecurityErrorResponseWriter;
+import com.couponpop.security.utils.SecurityErrorResponseWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

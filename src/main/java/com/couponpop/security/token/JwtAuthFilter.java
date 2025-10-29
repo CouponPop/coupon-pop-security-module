@@ -3,7 +3,7 @@ package com.couponpop.security.token;
 
 import com.couponpop.security.blacklist.service.TokenBlacklistService;
 import com.couponpop.security.dto.AuthMember;
-import com.couponpop.utils.SecurityErrorResponseWriter;
+import com.couponpop.security.utils.SecurityErrorResponseWriter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

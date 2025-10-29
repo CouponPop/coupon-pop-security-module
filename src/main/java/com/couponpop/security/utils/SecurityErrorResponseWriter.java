@@ -1,4 +1,4 @@
-package com.couponpop.utils;
+package com.couponpop.security.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
