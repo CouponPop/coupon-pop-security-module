@@ -5,7 +5,8 @@ plugins {
 }
 
 group = 'com.couponpop'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
+description = 'JWT-based authentication and authorization library for CouponPop microservices'
 
 java {
     sourceCompatibility = '17'
@@ -46,6 +47,9 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // @ConfigurationProperties 지원
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -55,9 +59,20 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            groupId = group
+            artifactId = 'couponpop-security'
+            version = version
+
+            pom {
+                name.set("CouponPop Security Module")
+                description.set("JWT-based authentication and authorization library for CouponPop microservices")
+                url.set("https://github.com/CouponPop/couponpop-security-module")
+            }
         }
     }
+
     repositories {
+        // GitHub Packages
         maven {
             name = "GitHubPackages"
             url = "https://maven.pkg.github.com/CouponPop/coupon-pop-security-module"
@@ -73,3 +88,14 @@ test {
     useJUnitPlatform()
 }
 
+jar {
+    manifest {
+        attributes(
+                'Manifest-Version': '1.0',
+                'Implementation-Title': 'CouponPop Security Module',
+                'Implementation-Version': version,
+                'Implementation-Vendor': 'CouponPop Team',
+                'Automatic-Module-Name': 'com.couponpop.security'
+        )
+    }
+}
