@@ -20,7 +20,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
-        SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
-                "AUTHENTICATION_REQUIRED", "인증이 필요합니다.");
+        SecurityErrorResponseWriter.writeAuthenticationRequiredResponse(request, response);
     }
 }

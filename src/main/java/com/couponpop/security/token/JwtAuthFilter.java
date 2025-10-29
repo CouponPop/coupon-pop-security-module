@@ -50,8 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // 블랙리스트 검증
             if (tokenBlacklistService.isBlacklisted(bearerToken)) {
                 log.debug("[JwtFilter] 인증 실패: 블랙리스트에 등록된 토큰 - {}", bearerToken);
-                SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
-                        "INVALID_TOKEN", "유효하지 않은 토큰입니다. 다시 로그인하세요");
+                SecurityErrorResponseWriter.writeInvalidTokenResponse(request, response);
                 return;
             }
 
@@ -61,18 +60,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException e) {
             log.debug("[JwtFilter] 인증 실패: 만료된 토큰 - {}", e.getMessage());
-            SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
-                    "EXPIRED_TOKEN", "만료된 토큰입니다. 다시 로그인하세요.");
+            SecurityErrorResponseWriter.writeExpiredTokenResponse(request, response);
             return;
         } catch (MalformedJwtException | SignatureException e) {
             log.debug("[JwtFilter] 인증 실패: 유효하지 않은 토큰 - {}", e.getMessage());
-            SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
-                    "INVALID_TOKEN", "유효하지 않은 토큰입니다. 다시 로그인하세요");
+            SecurityErrorResponseWriter.writeInvalidTokenResponse(request, response);
             return;
         } catch (Exception e) {
             log.error("[JwtFilter] 인증 실패: 예상치 못한 오류 발생 - {}", e.getMessage(), e);
-            SecurityErrorResponseWriter.writeInternalServerErrorResponse(response,
-                    "INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.");
+            SecurityErrorResponseWriter.writeInternalServerErrorResponse(request, response);
             return;
         }
 
