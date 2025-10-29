@@ -18,8 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -43,18 +41,6 @@ public class DefaultSecurityAutoConfig {
     private final JwtProperties jwtProperties;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-
-    /**
-     * 기본 비밀번호 인코더를 제공합니다.
-     * 서비스에서 PasswordEncoder 빈을 정의하면 해당 빈이 우선 사용됩니다.
-     *
-     * @return BCrypt 알고리즘을 사용하는 PasswordEncoder
-     */
-    @Bean
-    @ConditionalOnMissingBean(PasswordEncoder.class)
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     /**
      * 기본 보안 필터 체인을 제공합니다.

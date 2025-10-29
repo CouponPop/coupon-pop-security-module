@@ -1,6 +1,6 @@
 package com.couponpop.security.config;
 
-import com.couponpop.security.blacklist.repository.InMemoryTokenBlacklistRepository;
+import com.couponpop.security.blacklist.repository.RedisTokenBlacklistRepository;
 import com.couponpop.security.blacklist.repository.TokenBlacklistRepository;
 import com.couponpop.security.blacklist.service.TokenBlacklistService;
 import com.couponpop.security.exception.CustomAccessDeniedHandler;
@@ -13,6 +13,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 @AutoConfiguration
 @ConfigurationPropertiesScan("com.couponpop.security.properties")
@@ -36,20 +41,21 @@ public class SecurityBeansConfig {
     @Bean
     @ConditionalOnMissingBean(JwtAuthFilter.class)
     public JwtAuthFilter jwtAuthFilter(JwtProvider jwtProvider,
-                                       TokenBlacklistService tokenBlacklistService) {
-        return new JwtAuthFilter(jwtProvider, tokenBlacklistService);
+                                       TokenBlacklistService tokenBlacklistService, JwtProperties jwtProperties) {
+        List<String> whiteList = jwtProperties.getSecret().getWhiteList();
+        return new JwtAuthFilter(jwtProvider, tokenBlacklistService, whiteList);
     }
 
     /**
      * 토큰 블랙리스트 저장소를 제공합니다.
-     * 기본 구현은 InMemory 방식이며, Redis 등 다른 구현체로 재정의 가능합니다.
+     * 기본 구현은 Redis 방식이며, 다른 구현체로 재정의 가능합니다.
      *
-     * @return InMemory 방식의 토큰 블랙리스트 저장소
+     * @return Redis 방식의 토큰 블랙리스트 저장소
      */
     @Bean
     @ConditionalOnMissingBean(TokenBlacklistRepository.class)
-    public TokenBlacklistRepository tokenBlacklistRepository() {
-        return new InMemoryTokenBlacklistRepository();
+    public TokenBlacklistRepository tokenBlacklistRepository(StringRedisTemplate stringRedisTemplate) {
+        return new RedisTokenBlacklistRepository(stringRedisTemplate);
     }
 
     /**
@@ -80,5 +86,17 @@ public class SecurityBeansConfig {
     @ConditionalOnMissingBean(CustomAuthenticationEntryPoint.class)
     public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
         return new CustomAuthenticationEntryPoint();
+    }
+
+    /**
+     * 기본 비밀번호 인코더를 제공합니다.
+     * 서비스에서 PasswordEncoder 빈을 정의하면 해당 빈이 우선 사용됩니다.
+     *
+     * @return BCrypt 알고리즘을 사용하는 PasswordEncoder
+     */
+    @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

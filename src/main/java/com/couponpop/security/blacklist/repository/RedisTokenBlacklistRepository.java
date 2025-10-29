@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import static com.couponpop.security.constants.SecurityTemplates.FORMATTER_YYYY_MM_DD_HH_MM_SS;
 
 @Slf4j
-@Repository
 @Primary
 @RequiredArgsConstructor
 public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
@@ -22,6 +21,10 @@ public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
     private static final String BLACKLIST_PREFIX = "token:blacklist:";
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    public RedisTokenBlacklistRepository(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     private static String tokenPreview(String token) {
         return token.substring(0, Math.min(10, token.length())) + "...";
