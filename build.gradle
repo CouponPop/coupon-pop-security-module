@@ -33,7 +33,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    api 'io.jsonwebtoken:jjwt-api:0.13.0' // 이 라이브러리의 메소드를 서비스에서도 직접 사용하기 위해
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
