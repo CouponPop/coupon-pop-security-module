@@ -10,6 +10,8 @@ import java.time.ZoneId;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.couponpop.security.constants.AuthTemplates.FORMATTER_YYYY_MM_DD_HH_MM_SS;
+
 @Slf4j
 @Repository
 @Profile("test") // 테스트 환경에서만 사용
