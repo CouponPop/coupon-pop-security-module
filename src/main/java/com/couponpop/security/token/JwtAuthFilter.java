@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Slf4j
@@ -31,11 +32,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final TokenBlacklistService tokenBlacklistService;
+    private final List<String> whiteList;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain chain) throws ServletException, IOException {
+
+
+        String requestURI = request.getRequestURI();
+
+        if (isWhiteListed(requestURI)) {
+            log.debug("[JwtFilter] 화이트리스트 대상 요청 - {}", requestURI);
+            chain.doFilter(request, response);
+            return;
+        }
 
         String bearerToken = jwtProvider.resolveToken(request.getHeader(AUTHORIZATION_HEADER));
 
@@ -73,6 +84,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    private boolean isWhiteListed(String uri) {
+        return whiteList.stream().anyMatch(uri::startsWith);
     }
 
     private void setAuthentication(Claims claims) {
