@@ -4,8 +4,7 @@ package com.couponpop.security.token;
 import com.couponpop.security.blacklist.service.TokenBlacklistService;
 import com.couponpop.security.dto.AuthMember;
 import com.couponpop.security.enums.MemberType;
-import com.couponpop.security.exception.AuthErrorCode;
-import com.couponpop.security.exception.GlobalException;
+import com.couponpop.utils.SecurityErrorResponseWriter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -21,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
@@ -32,7 +30,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final JwtProvider jwtProvider;
-    private final HandlerExceptionResolver handlerExceptionResolver;
     private final TokenBlacklistService tokenBlacklistService;
 
     @Override
@@ -43,7 +40,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String bearerToken = jwtProvider.resolveToken(request.getHeader(AUTHORIZATION_HEADER));
 
         try {
-
             // 토큰 존재 여부 확인
             if (!StringUtils.hasText(bearerToken)) {
                 log.debug("[JwtFilter] 토큰이 존재하지 않는 요청");
@@ -54,32 +50,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // 블랙리스트 검증
             if (tokenBlacklistService.isBlacklisted(bearerToken)) {
                 log.debug("[JwtFilter] 인증 실패: 블랙리스트에 등록된 토큰 - {}", bearerToken);
-                handlerExceptionResolver.resolveException(request, response, null,
-                        new GlobalException(AuthErrorCode.INVALID_TOKEN));
+                SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
+                        "INVALID_TOKEN", "유효하지 않은 토큰입니다. 다시 로그인하세요");
                 return;
             }
 
             // 토큰 검증
             Claims claims = jwtProvider.validateToken(bearerToken);
             setAuthentication(claims);
+
         } catch (ExpiredJwtException e) {
             log.debug("[JwtFilter] 인증 실패: 만료된 토큰 - {}", e.getMessage());
-            handlerExceptionResolver.resolveException(request, response, null,
-                    new GlobalException(AuthErrorCode.EXPIRED_TOKEN));
+            SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
+                    "EXPIRED_TOKEN", "만료된 토큰입니다. 다시 로그인하세요.");
             return;
-        } catch (MalformedJwtException | SignatureException e) { // 토큰의 형식이 올바르지 않은 경우, 토큰의 시그니처가 올바르지 않은 경우
+        } catch (MalformedJwtException | SignatureException e) {
             log.debug("[JwtFilter] 인증 실패: 유효하지 않은 토큰 - {}", e.getMessage());
-            handlerExceptionResolver.resolveException(request, response, null,
-                    new GlobalException(AuthErrorCode.INVALID_TOKEN));
-            return;
-        } catch (GlobalException e) {
-            log.debug("[JwtFilter] 인증 실패: 정의한 다른 오류 발생 - {}", e.getMessage());
-            handlerExceptionResolver.resolveException(request, response, null, e);
+            SecurityErrorResponseWriter.writeUnauthorizedResponse(response,
+                    "INVALID_TOKEN", "유효하지 않은 토큰입니다. 다시 로그인하세요");
             return;
         } catch (Exception e) {
-            log.debug("[JwtFilter] 인증 실패: 정의하지 않은 다른 오류 발생 - {}", e.getMessage());
-            handlerExceptionResolver.resolveException(request, response, null,
-                    new GlobalException(AuthErrorCode.INTERNAL_SERVER_ERROR));
+            log.error("[JwtFilter] 인증 실패: 예상치 못한 오류 발생 - {}", e.getMessage(), e);
+            SecurityErrorResponseWriter.writeInternalServerErrorResponse(response,
+                    "INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.");
             return;
         }
 
@@ -87,7 +80,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(Claims claims) {
-
         Long userId = Long.valueOf(claims.getSubject());
         String username = claims.get("username", String.class);
         MemberType memberType = MemberType.valueOf(claims.get("memberType", String.class));

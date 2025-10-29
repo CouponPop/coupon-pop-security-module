@@ -8,17 +8,14 @@ import com.couponpop.security.exception.CustomAuthenticationEntryPoint;
 import com.couponpop.security.properties.JwtProperties;
 import com.couponpop.security.token.JwtAuthFilter;
 import com.couponpop.security.token.JwtProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
-
-@ConfigurationPropertiesScan("com.couponpop.security.properties")
 @AutoConfiguration
+@ConfigurationPropertiesScan("com.couponpop.security.properties")
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityBeansConfig {
 
@@ -39,9 +36,8 @@ public class SecurityBeansConfig {
     @Bean
     @ConditionalOnMissingBean(JwtAuthFilter.class)
     public JwtAuthFilter jwtAuthFilter(JwtProvider jwtProvider,
-                                       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
                                        TokenBlacklistService tokenBlacklistService) {
-        return new JwtAuthFilter(jwtProvider, handlerExceptionResolver, tokenBlacklistService);
+        return new JwtAuthFilter(jwtProvider, tokenBlacklistService);
     }
 
     /**
@@ -72,11 +68,8 @@ public class SecurityBeansConfig {
      */
     @Bean
     @ConditionalOnMissingBean(CustomAccessDeniedHandler.class)
-    public CustomAccessDeniedHandler customAccessDeniedHandler(
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
-        CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler();
-        handler.setHandlerExceptionResolver(handlerExceptionResolver);
-        return handler;
+    public CustomAccessDeniedHandler customAccessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
     }
 
     /**
@@ -85,10 +78,7 @@ public class SecurityBeansConfig {
      */
     @Bean
     @ConditionalOnMissingBean(CustomAuthenticationEntryPoint.class)
-    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint(
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
-        CustomAuthenticationEntryPoint entryPoint = new CustomAuthenticationEntryPoint();
-        entryPoint.setHandlerExceptionResolver(handlerExceptionResolver);
-        return entryPoint;
+    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint();
     }
 }
