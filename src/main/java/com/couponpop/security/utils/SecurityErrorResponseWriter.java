@@ -1,6 +1,6 @@
 package com.couponpop.security.utils;
 
-import com.couponpop.security.exception.AuthErrorCode;
+import com.couponpop.security.exception.SecurityErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +35,7 @@ public final class SecurityErrorResponseWriter {
      */
     public static void writeErrorResponse(HttpServletRequest request,
                                           HttpServletResponse response,
-                                          AuthErrorCode errorCode) throws IOException {
+                                          SecurityErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
@@ -58,7 +58,7 @@ public final class SecurityErrorResponseWriter {
      */
     public static void writeAuthenticationRequiredResponse(HttpServletRequest request,
                                                            HttpServletResponse response) throws IOException {
-        writeErrorResponse(request, response, AuthErrorCode.AUTHENTICATION_REQUIRED);
+        writeErrorResponse(request, response, SecurityErrorCode.AUTHENTICATION_REQUIRED);
     }
 
     /**
@@ -66,7 +66,7 @@ public final class SecurityErrorResponseWriter {
      */
     public static void writeInvalidTokenResponse(HttpServletRequest request,
                                                  HttpServletResponse response) throws IOException {
-        writeErrorResponse(request, response, AuthErrorCode.INVALID_TOKEN);
+        writeErrorResponse(request, response, SecurityErrorCode.INVALID_TOKEN);
     }
 
     /**
@@ -74,7 +74,7 @@ public final class SecurityErrorResponseWriter {
      */
     public static void writeExpiredTokenResponse(HttpServletRequest request,
                                                  HttpServletResponse response) throws IOException {
-        writeErrorResponse(request, response, AuthErrorCode.EXPIRED_TOKEN);
+        writeErrorResponse(request, response, SecurityErrorCode.EXPIRED_TOKEN);
     }
 
     /**
@@ -82,7 +82,7 @@ public final class SecurityErrorResponseWriter {
      */
     public static void writeAccessDeniedResponse(HttpServletRequest request,
                                                  HttpServletResponse response) throws IOException {
-        writeErrorResponse(request, response, AuthErrorCode.ACCESS_DENIED);
+        writeErrorResponse(request, response, SecurityErrorCode.ACCESS_DENIED);
     }
 
     /**
@@ -90,6 +90,6 @@ public final class SecurityErrorResponseWriter {
      */
     public static void writeInternalServerErrorResponse(HttpServletRequest request,
                                                         HttpServletResponse response) throws IOException {
-        writeErrorResponse(request, response, AuthErrorCode.INTERNAL_SERVER_ERROR);
+        writeErrorResponse(request, response, SecurityErrorCode.INTERNAL_SERVER_ERROR);
     }
 }

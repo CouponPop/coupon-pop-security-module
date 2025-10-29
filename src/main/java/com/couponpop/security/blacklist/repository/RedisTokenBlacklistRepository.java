@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
-import static com.couponpop.security.constants.AuthTemplates.FORMATTER_YYYY_MM_DD_HH_MM_SS;
+import static com.couponpop.security.constants.SecurityTemplates.FORMATTER_YYYY_MM_DD_HH_MM_SS;
 
 @Slf4j
 @Repository
