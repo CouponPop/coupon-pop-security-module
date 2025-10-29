@@ -1,0 +1,3 @@
+com.couponpop.security.config.DefaultSecurityAutoConfig
+com.couponpop.security.config.SecurityBeansConfig
+com.couponpop.security.config.SecurityRedisAutoConfig
