@@ -1,8 +1,6 @@
 package com.couponpop.security.blacklist.repository;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -14,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 import static com.couponpop.security.constants.SecurityTemplates.FORMATTER_YYYY_MM_DD_HH_MM_SS;
 
 @Slf4j
-@Primary
-@RequiredArgsConstructor
 public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
 
     private static final String BLACKLIST_PREFIX = "token:blacklist:";
