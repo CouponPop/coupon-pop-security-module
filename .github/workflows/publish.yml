@@ -1,0 +1,43 @@
+name: Publish Coupon Pop security module to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'v*' # 1. [수정] 'v'로 시작하는 태그가 푸시될 때만 실행
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Extract version from tag # Git 태그 이름에서 'v'를 제거하여 버전 번호만 추출
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Publish to GitHub Packages
+        run: ./gradlew publish -Pversion=${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
