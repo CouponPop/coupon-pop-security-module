@@ -16,10 +16,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.PathContainer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.pattern.PathPattern;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final TokenBlacklistService tokenBlacklistService;
-    private final List<String> whiteList;
+    private final List<PathPattern> whiteListPatterns;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -86,7 +88,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isWhiteListed(String uri) {
-        return whiteList.stream().anyMatch(uri::startsWith);
+        PathContainer pathContainer = PathContainer.parsePath(uri);
+        return whiteListPatterns.stream()
+                .anyMatch(pattern -> pattern.matches(pathContainer));
     }
 
     private void setAuthentication(Claims claims) {

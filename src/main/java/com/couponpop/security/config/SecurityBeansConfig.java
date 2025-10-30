@@ -14,6 +14,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.util.List;
 
@@ -40,8 +42,13 @@ public class SecurityBeansConfig {
     @ConditionalOnMissingBean(JwtAuthFilter.class)
     public JwtAuthFilter jwtAuthFilter(JwtProvider jwtProvider,
                                        TokenBlacklistService tokenBlacklistService, JwtProperties jwtProperties) {
+
         List<String> whiteList = jwtProperties.getSecret().getWhiteList();
-        return new JwtAuthFilter(jwtProvider, tokenBlacklistService, whiteList);
+        PathPatternParser pathPatternParser = new PathPatternParser();
+        List<PathPattern> whiteListPatterns = whiteList.stream()
+                .map(pathPatternParser::parse)
+                .toList();
+        return new JwtAuthFilter(jwtProvider, tokenBlacklistService, whiteListPatterns);
     }
 
     /**
