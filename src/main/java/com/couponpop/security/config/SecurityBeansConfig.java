@@ -14,8 +14,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -86,17 +84,5 @@ public class SecurityBeansConfig {
     @ConditionalOnMissingBean(CustomAuthenticationEntryPoint.class)
     public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
         return new CustomAuthenticationEntryPoint();
-    }
-
-    /**
-     * 기본 비밀번호 인코더를 제공합니다.
-     * 서비스에서 PasswordEncoder 빈을 정의하면 해당 빈이 우선 사용됩니다.
-     *
-     * @return BCrypt 알고리즘을 사용하는 PasswordEncoder
-     */
-    @Bean
-    @ConditionalOnMissingBean(PasswordEncoder.class)
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
