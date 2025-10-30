@@ -54,21 +54,7 @@ public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
     public boolean exists(String token) {
 
         String key = BLACKLIST_PREFIX + token;
-        String value = redisTemplate.opsForValue().get(key);
-        if (value == null) {
-            return false;
-        }
-
-        // 만료된 토큰은 TTL로 자동 삭제되나 수동으로 검증도 수행
-        long expirationTime = Long.parseLong(value);
-        boolean isExpired = expirationTime < System.currentTimeMillis();
-
-        if (isExpired) {
-            redisTemplate.delete(key);
-            log.debug("[Redis Blacklist Repository] 만료된 토큰 삭제: {}", tokenPreview(token));
-        }
-
-        return !isExpired;
+        return redisTemplate.hasKey(key);
     }
 }
 
