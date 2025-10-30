@@ -9,7 +9,7 @@ public record AuthMember(
         String memberType,
         GrantedAuthority role
 ) {
-    public static AuthMember from(Long userId, String username, String memberTypeString) {
+    public static AuthMember of(Long userId, String username, String memberTypeString) {
 
         // "ROLE_" 이라는 Prefix가 추가된 roleName 필드 사용
         GrantedAuthority role = new SimpleGrantedAuthority("ROLE_" + memberTypeString);

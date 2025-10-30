@@ -95,7 +95,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String username = claims.get("username", String.class);
         String memberType = claims.get("memberType", String.class);
 
-        AuthMember authMember = AuthMember.from(userId, username, memberType);
+        AuthMember authMember = AuthMember.of(userId, username, memberType);
         Authentication authenticationToken = new JwtAuthenticationToken(authMember);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
