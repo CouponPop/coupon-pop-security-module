@@ -19,12 +19,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-
-import java.util.List;
 
 
 @AutoConfiguration
@@ -35,8 +30,6 @@ import java.util.List;
 @EnableConfigurationProperties(JwtProperties.class)
 public class DefaultSecurityAutoConfig {
 
-    private final static String LOCAL_HOST_DOMAIN = "http://localhost:8080";
-    private final static String LOCAL_HOST_IP = "http://127.0.0.1:8080";
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtProperties jwtProperties;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
@@ -56,7 +49,6 @@ public class DefaultSecurityAutoConfig {
         return http
 
                 // JWT 사용 시 불필요한 기능 비활성화
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -82,25 +74,5 @@ public class DefaultSecurityAutoConfig {
                 // JWT 인증 필터 추가
                 .addFilterAfter(jwtAuthFilter, CorsFilter.class)
                 .build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowedOrigins(List.of(
-                LOCAL_HOST_DOMAIN, LOCAL_HOST_IP // Swagger UI
-        ));
-
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowCredentials(true);
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
-        config.setExposedHeaders(List.of("Authorization"));
-        config.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
 }
