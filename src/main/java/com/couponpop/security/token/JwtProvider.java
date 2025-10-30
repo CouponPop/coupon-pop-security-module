@@ -12,11 +12,11 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 
+import static com.couponpop.security.constants.SecurityTemplates.ACCESS_TOKEN_EXPIRATION;
+import static com.couponpop.security.constants.SecurityTemplates.BEARER_TOKEN_PREFIX;
+
 @Slf4j(topic = "JwtUtil")
 public class JwtProvider {
-
-    private static final long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 1000L; // 1시간
-    private static final String BEARER_PREFIX = "Bearer ";
 
     @Value("${jwt.secret.key}")
     private String base64SecretKey;
@@ -51,8 +51,8 @@ public class JwtProvider {
 
     public String resolveToken(String authorizationHeader) {
 
-        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith(BEARER_PREFIX)) {
-            return authorizationHeader.substring(BEARER_PREFIX.length());
+        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith(BEARER_TOKEN_PREFIX)) {
+            return authorizationHeader.substring(BEARER_TOKEN_PREFIX.length());
         }
         return null;
     }

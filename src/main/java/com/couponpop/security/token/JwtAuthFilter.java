@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -27,8 +28,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-
-    private static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final JwtProvider jwtProvider;
     private final TokenBlacklistService tokenBlacklistService;
@@ -48,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String bearerToken = jwtProvider.resolveToken(request.getHeader(AUTHORIZATION_HEADER));
+        String bearerToken = jwtProvider.resolveToken(request.getHeader(HttpHeaders.AUTHORIZATION));
 
         try {
             // 토큰 존재 여부 확인

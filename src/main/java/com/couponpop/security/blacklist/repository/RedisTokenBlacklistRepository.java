@@ -9,12 +9,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
+import static com.couponpop.security.constants.SecurityTemplates.BLACKLIST_KEY_PREFIX;
 import static com.couponpop.security.constants.SecurityTemplates.FORMATTER_YYYY_MM_DD_HH_MM_SS;
 
 @Slf4j
 public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
-
-    private static final String BLACKLIST_PREFIX = "token:blacklist:";
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -29,7 +28,7 @@ public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
     @Override
     public void save(String token, long expirationMillis) {
 
-        String key = BLACKLIST_PREFIX + token;
+        String key = BLACKLIST_KEY_PREFIX + token;
         long remainingMillis = expirationMillis - System.currentTimeMillis();
 
         if (remainingMillis <= 0) {
@@ -49,7 +48,7 @@ public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
     @Override
     public boolean exists(String token) {
 
-        String key = BLACKLIST_PREFIX + token;
+        String key = BLACKLIST_KEY_PREFIX + token;
         return redisTemplate.hasKey(key);
     }
 }
