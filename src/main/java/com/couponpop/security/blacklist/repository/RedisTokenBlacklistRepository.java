@@ -48,8 +48,13 @@ public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
     @Override
     public boolean exists(String token) {
 
-        String key = BLACKLIST_KEY_PREFIX + token;
-        return redisTemplate.hasKey(key);
+        try {
+            String key = BLACKLIST_KEY_PREFIX + token;
+            return redisTemplate.hasKey(key);
+        } catch (Exception e) {
+            log.error("[Redis Blacklist Repository] Redis 조회 실패. 기본값 false 반환 | error: {}", e.getMessage());
+            return false; // 기본값으로 false 반환 (가용성 우선)
+        }
     }
 }
 
