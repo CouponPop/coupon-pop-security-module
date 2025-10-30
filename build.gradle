@@ -58,11 +58,11 @@ dependencies {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
-            groupId = group
+            groupId = project.group
             artifactId = 'couponpop-security'
-            version = version
+            version = project.version
 
+            from components.java
             pom {
                 name.set("CouponPop Security Module")
                 description.set("JWT-based authentication and authorization library for CouponPop microservices")
@@ -97,5 +97,14 @@ jar {
                 'Implementation-Vendor': 'CouponPop Team',
                 'Automatic-Module-Name': 'com.couponpop.security'
         )
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    if (System.getenv("GITHUB_ACTIONS") == "true") {
+        repository.credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
     }
 }
