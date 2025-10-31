@@ -28,11 +28,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Publish SNAPSHOT to GitHub Packages
-        run: ./gradlew publish # -Pversion 없이 실행
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # 브랜치 이름에서 SNAPSHOT 버전 생성
       - name: Determine SNAPSHOT Version
         id: determine_snapshot_version
