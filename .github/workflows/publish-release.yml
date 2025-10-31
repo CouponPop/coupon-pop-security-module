@@ -1,0 +1,81 @@
+name: Publish Coupon Pop security module to GitHub Packages & Create Release
+
+on:
+  push:
+    tags:
+      - 'v*' #'v'로 시작하는 태그가 푸시될 때만 실행
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # Git 태그 이름에서 'v'를 제거하여 버전 번호 추출
+      - name: Extract version from tag
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV # (예: v1.0.0 -> 1.0.0)
+
+      # 1. GitHub Packages에 JAR 배포
+      - name: Publish to GitHub Packages
+        run: ./gradlew publish -Pversion=${{ env.VERSION }} # 추출된 버전 주입
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. GitHub Release 생성
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }} # 예: v1.0.0
+          release_name: Release ${{ env.VERSION }} # 예: Release 1.0.0
+          body: |
+            ### Changes in ${{ env.VERSION }}
+            ${{ steps.generate_release_notes.outputs.changes }}
+          draft: false
+          prerelease: false
+
+      # 3. 릴리즈 노트를 동적으로 생성하는 스텝
+      - name: Generate Release Notes
+        id: generate_release_notes
+        run: |
+          # 현재 태그를 기준으로 이전 태그를 찾아서 그 사이의 커밋 메시지를 가져옴
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || echo "")
+
+          CHANGES=""
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # 이전 태그가 없으면 모든 커밋 메시지를 가져옴
+            CHANGES=$(git log --pretty=format:"- %s" "${CURRENT_TAG}" --reverse)
+          else
+            # 이전 태그가 있으면 그 사이의 커밋 메시지를 가져옴
+            CHANGES=$(git log --pretty=format:"- %s" "${PREVIOUS_TAG}..${CURRENT_TAG}" --reverse)
+          fi
+          
+          # 릴리즈 노트가 비어있을 경우 기본 메시지
+          if [ -z "$CHANGES" ]; then
+            CHANGES="- Initial release or no changes since last tag."
+          fi
+
+          # Multiline output을 위한 GitHub Actions 문법
+          echo "changes<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
