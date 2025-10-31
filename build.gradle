@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.couponpop'
-version = project.findProperty('version') ? project.property('version') : '0.0.1-SNAPSHOT'
+version = project.findProperty('version') ?: '0.0.1-SNAPSHOT'
 description = 'JWT-based authentication and authorization library for CouponPop microservices'
 
 java {
@@ -66,7 +66,7 @@ publishing {
             pom {
                 name.set("CouponPop Security Module")
                 description.set("JWT-based authentication and authorization library for CouponPop microservices")
-                url.set("https://github.com/CouponPop/couponpop-security-module")
+                url.set("https://github.com/CouponPop/coupon-pop-security-module")
             }
         }
     }
