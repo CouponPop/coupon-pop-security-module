@@ -1,0 +1,2 @@
+com.couponpop.security.config.DefaultSecurityAutoConfig
+com.couponpop.security.config.SecurityBeansConfig

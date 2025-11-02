@@ -1,0 +1,117 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+ext.baseSnapshotVersion = '0.0.1'
+group = 'com.couponpop'
+version = project.findProperty('version') ?: '0.0.0'
+description = 'JWT-based authentication and authorization library for CouponPop microservices'
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.1" // 기존 API 서버와 동일
+    }
+}
+
+dependencies {
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // JWT
+    api 'io.jsonwebtoken:jjwt-api:0.13.0' // 이 라이브러리의 메소드를 서비스에서도 직접 사용하기 위해
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // @ConfigurationProperties 지원
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = project.group
+            artifactId = 'couponpop-security'
+            version = project.version
+
+            from components.java
+            pom {
+                name.set("CouponPop Security Module")
+                description.set("JWT-based authentication and authorization library for CouponPop microservices")
+                url.set("https://github.com/CouponPop/coupon-pop-security-module")
+            }
+        }
+    }
+
+    repositories {
+        // GitHub Packages
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/CouponPop/coupon-pop-security-module"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Manifest-Version': '1.0',
+                'Implementation-Title': 'CouponPop Security Module',
+                'Implementation-Version': version,
+                'Implementation-Vendor': 'CouponPop Team',
+                'Automatic-Module-Name': 'com.couponpop.security'
+        )
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    if (System.getenv("GITHUB_ACTIONS") == "true") {
+        repository.credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+tasks.register('printBaseSnapshotVersion') {
+    doLast {
+        println project.ext.baseSnapshotVersion
+    }
+}
