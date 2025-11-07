@@ -100,7 +100,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String tokenType = claims.get("tokenType", String.class);
         AuthMember authMember;
 
-        log.info("tokenType: {}", tokenType);
+        if (tokenType == null) {
+            throw new MalformedJwtException("tokenType이 존재하지 않습니다.");
+        }
 
         switch (tokenType) {
             case SYSTEM_TOKEN_TYPE -> {
@@ -113,7 +115,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String memberType = claims.get("memberType", String.class);
                 authMember = AuthMember.of(userId, username, memberType);
             }
-            default -> throw new IllegalStateException("Unknown tokenType: " + tokenType);
+            default -> throw new MalformedJwtException("알 수 없는 tokenType 입니다: " + tokenType);
         }
 
         Authentication authenticationToken = new JwtAuthenticationToken(authMember);
