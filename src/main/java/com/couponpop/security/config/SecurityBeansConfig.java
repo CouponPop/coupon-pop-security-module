@@ -8,6 +8,7 @@ import com.couponpop.security.exception.CustomAuthenticationEntryPoint;
 import com.couponpop.security.properties.JwtProperties;
 import com.couponpop.security.token.JwtAuthFilter;
 import com.couponpop.security.token.JwtProvider;
+import com.couponpop.security.token.SystemTokenProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -91,5 +92,11 @@ public class SecurityBeansConfig {
     @ConditionalOnMissingBean(CustomAuthenticationEntryPoint.class)
     public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
         return new CustomAuthenticationEntryPoint();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(SystemTokenProvider.class)
+    public SystemTokenProvider systemTokenProvider(JwtProvider jwtProvider) {
+        return new SystemTokenProvider(jwtProvider);
     }
 }

@@ -12,8 +12,7 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 
-import static com.couponpop.security.constants.SecurityTemplates.ACCESS_TOKEN_EXPIRATION;
-import static com.couponpop.security.constants.SecurityTemplates.BEARER_TOKEN_PREFIX;
+import static com.couponpop.security.constants.SecurityTemplates.*;
 
 @Slf4j(topic = "JwtUtil")
 public class JwtProvider {
@@ -35,8 +34,21 @@ public class JwtProvider {
                 .subject(String.valueOf(userId))
                 .claim("username", username)
                 .claim("memberType", memberType)
+                .claim("tokenType", USER_TOKEN_TYPE)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String createSystemToken(String systemName) {
+
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(systemName)
+                .claim("tokenType", SYSTEM_TOKEN_TYPE)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + SYSTEM_TOKEN_EXPIRATION))
                 .signWith(secretKey)
                 .compact();
     }

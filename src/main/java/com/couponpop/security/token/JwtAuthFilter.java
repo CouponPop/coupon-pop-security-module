@@ -26,6 +26,9 @@ import org.springframework.web.util.pattern.PathPattern;
 import java.io.IOException;
 import java.util.List;
 
+import static com.couponpop.security.constants.SecurityTemplates.SYSTEM_TOKEN_TYPE;
+import static com.couponpop.security.constants.SecurityTemplates.USER_TOKEN_TYPE;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -94,11 +97,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(Claims claims) {
-        Long userId = Long.valueOf(claims.getSubject());
-        String username = claims.get("username", String.class);
-        String memberType = claims.get("memberType", String.class);
+        String tokenType = claims.get("tokenType", String.class);
+        AuthMember authMember;
 
-        AuthMember authMember = AuthMember.of(userId, username, memberType);
+        log.info("tokenType: {}", tokenType);
+
+        switch (tokenType) {
+            case SYSTEM_TOKEN_TYPE -> {
+                String systemName = claims.getSubject();
+                authMember = AuthMember.ofSystem(systemName);
+            }
+            case USER_TOKEN_TYPE -> {
+                Long userId = Long.valueOf(claims.getSubject());
+                String username = claims.get("username", String.class);
+                String memberType = claims.get("memberType", String.class);
+                authMember = AuthMember.of(userId, username, memberType);
+            }
+            default -> throw new IllegalStateException("Unknown tokenType: " + tokenType);
+        }
+
         Authentication authenticationToken = new JwtAuthenticationToken(authMember);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
