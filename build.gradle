@@ -67,7 +67,7 @@ publishing {
             pom {
                 name.set("CouponPop Security Module")
                 description.set("JWT-based authentication and authorization library for CouponPop microservices")
-                url.set("https://github.com/CouponPop/coupon-pop-security-module")
+                url.set("https://github.com/CouponPop/couponpop-security-module")
             }
         }
     }
@@ -76,7 +76,7 @@ publishing {
         // GitHub Packages
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/CouponPop/coupon-pop-security-module"
+            url = "https://maven.pkg.github.com/CouponPop/couponpop-security-module"
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
