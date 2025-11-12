@@ -52,7 +52,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("bearerToken-before: {}", request.getHeader(HttpHeaders.AUTHORIZATION));
         String bearerToken = jwtProvider.resolveToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        log.info("bearerToken-after: {}", bearerToken);
 
         try {
             // 토큰 존재 여부 확인
